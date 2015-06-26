@@ -399,6 +399,15 @@ HRESULT CHdmvClipInfo::ReadChapters(CString strPlaylistFile, CAtlList<CHdmvClipI
 
 #define MIN_LIMIT 3
 
+static CString StripPath(CString path)
+{
+	CString p = path;
+	p.Replace('\\', '/');
+	p.TrimRight('/');
+	p = p.Mid(p.ReverseFind('/') + 1);
+	return (p.IsEmpty() ? path : p);
+}
+
 HRESULT CHdmvClipInfo::FindMainMovie(LPCTSTR strFolder, CString& strPlaylistFile, CAtlList<PlaylistItem>& MainPlaylist, CAtlList<PlaylistItem>& MPLSPlaylists)
 {
     HRESULT hr = E_FAIL;
@@ -456,7 +465,9 @@ HRESULT CHdmvClipInfo::FindMainMovie(LPCTSTR strFolder, CString& strPlaylistFile
         // bubble sort
         for (size_t j = 0; j < MPLSPlaylists.GetCount(); j++) {
             for (size_t i = 0; i < MPLSPlaylists.GetCount() - 1; i++) {
-                if (MPLSPlaylists.GetAt(MPLSPlaylists.FindIndex(i)).Duration() < MPLSPlaylists.GetAt(MPLSPlaylists.FindIndex(i + 1)).Duration()) {
+				CString leftName = StripPath(MPLSPlaylists.GetAt(MPLSPlaylists.FindIndex(i)).m_strFileName);
+				CString rightName = StripPath(MPLSPlaylists.GetAt(MPLSPlaylists.FindIndex(i + 1)).m_strFileName);
+				if (leftName > rightName) {
                     MPLSPlaylists.SwapElements(MPLSPlaylists.FindIndex(i), MPLSPlaylists.FindIndex(i + 1));
                 }
             }
